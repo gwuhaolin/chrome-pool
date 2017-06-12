@@ -38,8 +38,8 @@ const { tabId,protocol } = await chromeTabsPoll.require();
 const { Page,Target,Network,...} = protocol;
 ```    
   `await chromeTabsPoll.require()` will return a object with prop:
-  - `tabId`: chrome tab id
-  - `protocol`: chrome remote control protocol 
+  - `tabId`: chrome tab id.
+  - `protocol`: chrome remote control protocol. 
 
 
     
@@ -47,7 +47,7 @@ const { Page,Target,Network,...} = protocol;
 ```js
 const { Page,Target,Network,...} = protocol;
 ```    
-protocol detail use see [doc](https://chromedevtools.github.io/devtools-protocol/)
+protocol detail use see [doc](https://chromedevtools.github.io/devtools-protocol/).
 
 
  
