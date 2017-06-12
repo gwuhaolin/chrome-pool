@@ -1,0 +1,21 @@
+{
+  "name": "chrome-pool",
+  "version": "0.0.1",
+  "description": "chrome tab pool, manage tabs for reuse tab",
+  "keywords": [
+    "chrome",
+    "headless",
+    "connect",
+    "pool"
+  ],
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "gwuhaolin",
+  "license": "ISC",
+  "dependencies": {
+    "chrome-remote-interface": "^0.23.2",
+    "lighthouse": "^2.1.0"
+  }
+}
