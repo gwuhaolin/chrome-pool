@@ -23,7 +23,7 @@ Headless chrome tabs manage pool, concept come from database connection pool for
   static method new() support options:
   - `maxTab`: {number} max tab to render pages, default is no limit.
   - `port`: {number} chrome debug port, default is random a free port.
-  - `protocols`: {array} require chrome devtool protocol to be enable before use.
+  - `protocols`: {array} require chrome devtool protocol to be enable before use. e.g `['Network','Log']`.
   
   
   `await chromePoll.destroyPoll()` can release all resource used by this pool, kill chrome.
