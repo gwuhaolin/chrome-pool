@@ -2,8 +2,8 @@
 [![Npm Downloads](http://img.shields.io/npm/dm/chrome-pool.svg?style=flat-square)](https://www.npmjs.com/package/chrome-pool)
 [![Dependency Status](https://david-dm.org/gwuhaolin/chrome-pool.svg?style=flat-square)](https://npmjs.org/package/chrome-pool)
 
-# Headless chrome tabs manage pool
-Concept come from database connection pool for reuse chrome tab improve performance.
+# chrome-pool
+Headless chrome tabs manage pool, concept come from database connection pool for reuse chrome tab improve performance.
 
 ## Use
 1. install from npm by `npm i chrome-pool`
