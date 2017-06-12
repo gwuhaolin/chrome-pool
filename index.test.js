@@ -1,55 +1,59 @@
 'use strict';
-const ChromeTabsPool = require('./index');
+const ChromePool = require('./index');
 const assert = require('assert');
 
-describe('#ChromeTabsPool', function () {
-  this.timeout(20000);
-  let chromeTabsPoll;
+describe('#ChromePool', function () {
 
-  beforeEach(async () => {
-    chromeTabsPoll = await ChromeTabsPool.new();
-  });
-
-  afterEach(async () => {
-    await chromeTabsPoll.destroyPoll();
+  it('#new() #destroyPoll()', async () => {
+    const chromePoll = await ChromePool.new();
+    Object.keys(chromePoll.tabs).forEach(tabId => {
+      const { free, protocol } = chromePoll.tabs[tabId];
+      assert.equal(free, true);
+      assert.notEqual(protocol, null);
+      console.log(tabId);
+    });
+    return await chromePoll.destroyPoll();
   });
 
   it('#createTab()', async () => {
-    return await chromeTabsPoll.createTab();
+    const chromePoll = await ChromePool.new();
+    const tabId = await chromePoll.createTab();
+    console.log(tabId);
+    const tab = chromePoll.tabs[tabId];
+    const { free, protocol } = tab;
+    assert.equal(free, true);
+    assert.notEqual(protocol, null);
+    return await chromePoll.destroyPoll();
   });
 
-  it('#createTab() set maxTab', async () => {
+  it('#createTab() set maxTab', async function () {
+    this.timeout(7000);
     const maxTab = 4;
-    let chromeTabsPoll = await ChromeTabsPool.new(maxTab);
+    let chromeTabsPoll = await ChromePool.new({
+      maxTab,
+    });
     assert.equal(chromeTabsPoll.maxTab, maxTab);
     await chromeTabsPoll.require();
     await chromeTabsPoll.require();
-    const client1 = await chromeTabsPoll.require();
-    const client2 = await chromeTabsPoll.require();
+    const { tabId: tabId1 } = await chromeTabsPoll.require();
+    const { tabId: tabId2 } = await chromeTabsPoll.require();
     assert.equal(Object.keys(chromeTabsPoll.tabs).length, maxTab, `open tabs should be equal to ${maxTab}`);
     console.log(`${maxTab} tabs has created, next require will return util a tab has be released after 5s`);
     setTimeout(() => {
-      chromeTabsPoll.release(client1.tabId);
-      chromeTabsPoll.release(client2.tabId);
+      chromeTabsPoll.release(tabId1);
+      chromeTabsPoll.release(tabId2);
     }, 5000);
     await chromeTabsPoll.require();
     await chromeTabsPoll.require();
-    await chromeTabsPoll.destroyPoll();
-  });
-
-  it('#connectTab()', async () => {
-    const chromeTabsPoll = await ChromeTabsPool.new();
-    const tabId = await chromeTabsPoll.createTab();
-    const client = await chromeTabsPoll.connectTab(tabId);
-    assert.equal(client.tabId, tabId, 'connect to an exited tab should has same tabId');
-    await chromeTabsPoll.destroyPoll();
+    return await chromeTabsPoll.destroyPoll();
   });
 
   it('#require() #release()', async () => {
-    const client = await chromeTabsPoll.require();
-    assert.equal(chromeTabsPoll.tabs[client.tabId].free, false, 'after require tab should be busy');
-    await chromeTabsPoll.release(client.tabId);
-    assert.equal(chromeTabsPoll.tabs[client.tabId].free, true, 'after release tab should be free');
+    const chromePoll = await ChromePool.new();
+    const client = await chromePoll.require();
+    assert.equal(chromePoll.tabs[client.tabId].free, false, 'after require tab should be busy');
+    await chromePoll.release(client.tabId);
+    assert.equal(chromePoll.tabs[client.tabId].free, true, 'after release tab should be free');
   });
 
 });

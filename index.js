@@ -8,20 +8,20 @@ const chrome = require('chrome-remote-interface');
  * @returns {Promise}
  */
 function sysFreePort() {
-    return new Promise((resolve, reject) => {
-        let server = net.createServer();
-        server.listen(0, function () {
-            const port = server.address().port;
-            server.once('close', function () {
-                resolve(port);
-            });
-            server.close();
-            server = null;
-        });
-        server.on('error', function (err) {
-            reject(err);
-        });
+  return new Promise((resolve, reject) => {
+    let server = net.createServer();
+    server.listen(0, function () {
+      const port = server.address().port;
+      server.once('close', function () {
+        resolve(port);
+      });
+      server.close();
+      server = null;
     });
+    server.on('error', function (err) {
+      reject(err);
+    });
+  });
 }
 
 /**
@@ -29,62 +29,104 @@ function sysFreePort() {
  * @returns {Promise.<function>} chrome launcher
  */
 async function launchChrome(port) {
-    return await launch({
-        port: port,
-        chromeFlags: [
-            '--headless',
-            '--disable-gpu',
-            '--disable-extensions',
-            '--disable-speech-api',
-            '--disable-signin-scoped-device-id',
-            '--disable-component-extensions-with-background-pages',
-        ]
-    });
+  return await launch({
+    port: port,
+    chromeFlags: [
+      '--headless',
+      '--disable-gpu',
+      '--disable-extensions',
+      '--disable-speech-api',
+      '--disable-signin-scoped-device-id',
+      '--disable-component-extensions-with-background-pages',
+    ]
+  });
+}
+
+// https://chromedevtools.github.io/devtools-protocol/
+const ShouldEnableBeforeUseProtocolNames = {
+  'Animation': true,
+  'ApplicationCache': true,
+  'CSS': true,
+  'CacheStorage': true,
+  'Console': true,
+  'DOM': true,
+  'DOMStorage': true,
+  'Database': true,
+  'Debugger': true,
+  'HeapProfiler': true,
+  'IndexedDB': true,
+  'Inspector': true,
+  'LayerTree': true,
+  'Log': true,
+  'Network': true,
+  'Overlay': true,
+  'Page': true,
+  'Profiler': true,
+  'Security': true,
+  'ServiceWorker': true,
 }
 
 /**
- * ChromeTabsPool used to manage chrome tabs, for reuse tab
- * use #new() static method to make a ChromeTabsPool, don't use new ChromeTabsPool()
- * #new() is a async function, new ChromeTabsPool is use able util await it to be completed
+ * ChromePool used to manage chrome tabs, for reuse tab
+ * use #new() static method to make a ChromePool, don't use new ChromePool()
+ * #new() is a async function, new ChromePool is useable util #ChromePool.new() to be completed
  */
-class ChromeTabsPool {
+class ChromePool {
 
   /**
-   * make a new ChromeTabsPool
-   * @param {number} maxTab max tab to render pages, default is no limit
+   * make a new ChromePool
+   * @param {object} options
+   * {
+   *  maxTab: {number} max tab to render pages, default is no limit.
+   *  port: {number} chrome debug port, default is random a free port.
+   *  protocols: {array} require chrome devtool protocol to enable.
+   * }
    * @returns {Promise.<*>}
    */
-  static async new(maxTab = Infinity) {
-    const port = await sysFreePort();
-    const chromeTabsPoll = new ChromeTabsPool();
-    chromeTabsPoll.port = port;
-    chromeTabsPoll.chromeLauncher = await launchChrome(port);
-    chromeTabsPoll.tabs = {};
-    chromeTabsPoll.maxTab = maxTab;
-    chromeTabsPoll.requireResolveTasks = [];
+  static async new(options = {}) {
+    let { maxTab = Infinity, port, protocols = [] } = options;
+    if (typeof port !== 'number') {
+      port = await sysFreePort();
+    }
+    const chromePoll = new ChromePool();
+    chromePoll.port = port;// chrome remote debug port
+    chromePoll.chromeLauncher = await launchChrome(port);
+    chromePoll.protocols = protocols;
+    chromePoll.tabs = {};// all tabs manage by this poll
+    chromePoll.maxTab = maxTab;
+    chromePoll.requireResolveTasks = [];
+
+    chromePoll.shouldEnabledProtocol = new Set(['Page']);
+    chromePoll.protocols.forEach(name => {
+      if (ShouldEnableBeforeUseProtocolNames[name]) {
+        chromePoll.shouldEnabledProtocol.add(name);
+      }
+    });
 
     // Request the list of the available open targets/tabs of the remote instance.
     // @see https://github.com/cyrus-and/chrome-remote-interface/#cdplistoptions-callback
-    const tabs = await chrome.List({ port });
+    const tabs = await chrome.List({ port, });
 
     for (let i = 0; i < tabs.length; i++) {
       const tab = tabs[i];
       const { id, type } = tab;
       // ignore background_page
       if (type === 'page') {
-        chromeTabsPoll.tabs[id] = {
+        chromePoll.tabs[id] = {
+          // is this tab free to use
           free: true,
-          client: await chromeTabsPoll.connectTab(id),
+          // chrome tab control protocol
+          protocol: await chromePoll.connectTab(id),
         };
       }
     }
-    return chromeTabsPoll;
+    return chromePoll;
   }
 
   /**
-   * connect to an exited tab then add it to poll
+   * connect to an exited tab for control it
    * @param {string} tabId chrome tab id
-   * @return {Promise.<{tabId: *, Page: *, DOM: *, Runtime: *, Network: *}>}
+   * @return {Promise.<{tabId: *, Page: *, DOM: *, Runtime: *, Network: *}>} tab control client
    */
   async connectTab(tabId) {
 
@@ -95,15 +137,10 @@ class ChromeTabsPool {
       port: this.port,
     });
 
-    const { Page, DOM, Runtime, Network } = protocol;
-    await Promise.all([Page.enable(), DOM.enable(), Runtime.enable(), Network.enable()]);
-    return {
-      tabId,
-      Page,
-      DOM,
-      Runtime,
-      Network,
-    }
+    // wait all protocols be enabled
+    await Promise.all(Array.from(this.shouldEnabledProtocol).map(name => protocol[name].enable()));
+
+    return protocol;
   }
 
   /**
@@ -122,7 +159,7 @@ class ChromeTabsPool {
       const { id } = tab;
       this.tabs[id] = {
         free: true,
-        client: await this.connectTab(id),
+        protocol: await this.connectTab(id),
       };
       return id;
     }
@@ -133,19 +170,25 @@ class ChromeTabsPool {
    * @return {Promise.<{tabId: *, Page: *, DOM: *, Runtime: *, Network: *}|*>}
    */
   async require() {
+    // find the first free tab for return
     let tabId = Object.keys(this.tabs).find(id => this.tabs[id].free);
     if (tabId === undefined) {
+      // no free tab now
       tabId = await this.createTab();
       // up to maxTab limit, should wait for tab release
       if (tabId === undefined) {
         tabId = await new Promise((resolve) => {
-          this.requireResolveTasks.unshift(resolve);
+          // first in first out
+          this.requireResolveTasks.push(resolve);
         });
       }
     }
     const tab = this.tabs[tabId];
     tab.free = false;
-    return tab.client;
+    return {
+      tabId,
+      protocol: tab.protocol,
+    };
   }
 
   /**
@@ -155,11 +198,44 @@ class ChromeTabsPool {
   async release(tabId) {
     let tab = this.tabs[tabId];
     // navigate this tab to blank to release this tab's resource
-    await tab.client.Page.navigate({ url: 'about:blank' });
+    // https://chromedevtools.github.io/devtools-protocol/tot/Page/#method-navigate
+    await tab.protocol.Page.navigate({ url: 'about:blank' });
     tab.free = true;
     if (this.requireResolveTasks.length > 0) {
-      const resolve = this.requireResolveTasks.pop();
+      const resolve = this.requireResolveTasks.shift();
       resolve(tabId);
+    } else {
+      clearTimeout(this.cleanTimer);
+      this.cleanTimer = setTimeout(this.cleanTabs, 5000);
+    }
+  }
+
+  /**
+   * clean free tabs left one
+   */
+  cleanTabs() {
+    // all free tabs now
+    const freeTabs = Object.keys(this.tabs).filter(tabId => this.tabs[tabId].free);
+    // close all free tabs left one
+    freeTabs.slice(2).forEach(this.closeTab);
+  }
+
+  /**
+   * close tab and remove it from this.tabs
+   * @param tabId
+   * @returns {Promise.<void>}
+   */
+  async closeTab(tabId) {
+    const tab = this.tabs[tabId];
+    const { Target } = tab.protocol;
+
+    // https://chromedevtools.github.io/devtools-protocol/tot/Target/#method-closeTarget
+    const closed = Target.closeTarget({
+      targetId: tabId,
+    });
+
+    if (closed) {
+      delete this.tabs[tabId];
     }
   }
 
@@ -169,12 +245,12 @@ class ChromeTabsPool {
    */
   async destroyPoll() {
     await this.chromeLauncher.kill();
-    this.tabs = null;
-    this.chromeLauncher = null;
-    this.port = null;
-    this.requireResolveTasks = null;
+    delete this.tabs;
+    delete this.chromeLauncher;
+    delete this.port;
+    delete this.requireResolveTasks;
   }
 
 }
 
-module.exports = ChromeTabsPool;
+module.exports = ChromePool;
