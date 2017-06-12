@@ -8,6 +8,7 @@ Concept come from database connection pool for reuse chrome tab improve performa
 ## Use
 1. install from npm by `npm i chrome-pool`
 
+
 2. start ChromePool:
   ```js
   const ChromePool = require('chrome-pool');
@@ -16,12 +17,14 @@ Concept come from database connection pool for reuse chrome tab improve performa
   await chromePoll.destroyPoll();
   ```
   
-  `await ChromePool.new()` will make a new ChromePool and start a new chrome. A ChromePool means a chrome. static method new() support options:
+  `await ChromePool.new()` will make a new ChromePool and start a new chrome. A ChromePool means a chrome. 
+  static method new() support options:
   - `maxTab`: {number} max tab to render pages, default is no limit.
   - `port`: {number} chrome debug port, default is random a free port.
   - `protocols`: {array} require chrome devtool protocol to be enable before use.
   
   `await chromePoll.destroyPoll()` can release all resource used by this pool, kill chrome.
+
     
 3. require a tab to use:
 ```js
@@ -33,12 +36,14 @@ const { Page,Target,Network,...} = protocol;
   `await chromeTabsPoll.require()` will return a object with prop:
   - `tabId`: chrome tab id
   - `protocol`: chrome remote control protocol 
+
     
 4. use protocol to control tab:
 ```js
 const { Page,Target,Network,...} = protocol;
 ```    
 protocol detail use see [doc](https://chromedevtools.github.io/devtools-protocol/)
+
  
 5. after use a tab release it to pool:
 ```js
