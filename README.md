@@ -55,3 +55,6 @@ protocol detail use see [doc](https://chromedevtools.github.io/devtools-protocol
 ```js
 await chromeTabsPoll.release(tabId);
 ```
+
+## Friends
+- [chrome-render](https://github.com/gwuhaolin/chrome-render)general server render base on chrome
