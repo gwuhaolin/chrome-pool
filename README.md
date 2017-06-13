@@ -58,6 +58,10 @@ await chromeTabsPoll.release(tabId);
 
 see [test](./index.test.js) for more use case.
 
+## Dependencies
+1. [Chrome 59+](https://www.google.com/chrome/browser/desktop/index.html) should install on you system
+2. Nodejs 7+
+
 ## Friends
 - [chrome-render](https://github.com/gwuhaolin/chrome-render) general server render base on chrome.
 - [koa-chrome-render](https://github.com/gwuhaolin/koa-chrome-render) chrome-render middleware for koa
