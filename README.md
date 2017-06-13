@@ -47,7 +47,7 @@ const { Page,Target,Network,...} = protocol;
 ```js
 const { Page,Target,Network,...} = protocol;
 ```    
-protocol detail use see [doc](https://chromedevtools.github.io/devtools-protocol/).
+protocol detail use see [chrome-devtools-protocol doc](https://chromedevtools.github.io/devtools-protocol/).
 
 
  
@@ -56,5 +56,9 @@ protocol detail use see [doc](https://chromedevtools.github.io/devtools-protocol
 await chromeTabsPoll.release(tabId);
 ```
 
+see [test](./index.test.js) for more use case.
+
 ## Friends
 - [chrome-render](https://github.com/gwuhaolin/chrome-render) general server render base on chrome.
+- [koa-chrome-render](https://github.com/gwuhaolin/koa-chrome-render) chrome-render middleware for koa
+- [koa-seo](https://github.com/gwuhaolin/koa-seo) koa SEO middleware
