@@ -36,8 +36,6 @@ async function launchChrome(port) {
       '--disable-gpu',
       '--disable-extensions',
       '--disable-speech-api',
-      '--disable-signin-scoped-device-id',
-      '--disable-component-extensions-with-background-pages',
     ]
   });
 }
@@ -195,18 +193,18 @@ class ChromePool {
    * call on a tab when your job on this tab is finished
    * @param {string} tabId
    */
-  async release(tabId) {
+  release(tabId) {
     let tab = this.tabs[tabId];
     // navigate this tab to blank to release this tab's resource
     // https://chromedevtools.github.io/devtools-protocol/tot/Page/#method-navigate
-    await tab.protocol.Page.navigate({ url: 'about:blank' });
     tab.free = true;
+    tab.protocol.Page.navigate({ url: 'about:blank' });
     if (this.requireResolveTasks.length > 0) {
       const resolve = this.requireResolveTasks.shift();
       resolve(tabId);
     } else {
       clearTimeout(this.cleanTimer);
-      this.cleanTimer = setTimeout(this.cleanTabs, 5000);
+      this.cleanTimer = setTimeout(this.cleanTabs.bind(this), 5000);
     }
   }
 
@@ -217,7 +215,7 @@ class ChromePool {
     // all free tabs now
     const freeTabs = Object.keys(this.tabs).filter(tabId => this.tabs[tabId].free);
     // close all free tabs left one
-    freeTabs.slice(2).forEach(this.closeTab);
+    freeTabs.slice(1).forEach(this.closeTab.bind(this));
   }
 
   /**
@@ -226,16 +224,15 @@ class ChromePool {
    * @returns {Promise.<void>}
    */
   async closeTab(tabId) {
-    const tab = this.tabs[tabId];
-    const { Target } = tab.protocol;
-
-    // https://chromedevtools.github.io/devtools-protocol/tot/Target/#method-closeTarget
-    const closed = Target.closeTarget({
-      targetId: tabId,
-    });
-
-    if (closed) {
+    try {
+      // https://chromedevtools.github.io/devtools-protocol/tot/Target/#method-closeTarget
+      await chrome.Close({
+        port: this.port,
+        id: tabId,
+      });
       delete this.tabs[tabId];
+    } catch (err) {
+      throw err;
     }
   }
 

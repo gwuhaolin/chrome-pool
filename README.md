@@ -53,7 +53,7 @@ protocol detail use see [chrome-devtools-protocol doc](https://chromedevtools.gi
  
 5. after use a tab release it to pool:
 ```js
-await chromeTabsPoll.release(tabId);
+chromeTabsPoll.release(tabId);
 ```
 
 see [test](./index.test.js) for more use case.
