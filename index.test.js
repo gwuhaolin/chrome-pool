@@ -29,23 +29,23 @@ describe('#ChromePool', function () {
   it('#createTab() set maxTab', async function () {
     this.timeout(7000);
     const maxTab = 4;
-    let chromeTabsPoll = await ChromePool.new({
+    let chromePoll = await ChromePool.new({
       maxTab,
     });
-    assert.equal(chromeTabsPoll.maxTab, maxTab);
-    await chromeTabsPoll.require();
-    await chromeTabsPoll.require();
-    const { tabId: tabId1 } = await chromeTabsPoll.require();
-    const { tabId: tabId2 } = await chromeTabsPoll.require();
-    assert.equal(Object.keys(chromeTabsPoll.tabs).length, maxTab, `open tabs should be equal to ${maxTab}`);
+    assert.equal(chromePoll.maxTab, maxTab);
+    await chromePoll.require();
+    await chromePoll.require();
+    const { tabId: tabId1 } = await chromePoll.require();
+    const { tabId: tabId2 } = await chromePoll.require();
+    assert.equal(Object.keys(chromePoll.tabs).length, maxTab, `open tabs should be equal to ${maxTab}`);
     console.log(`${maxTab} tabs has created, next require will return util a tab has be released after 5s`);
     setTimeout(() => {
-      chromeTabsPoll.release(tabId1);
-      chromeTabsPoll.release(tabId2);
+      chromePoll.release(tabId1);
+      chromePoll.release(tabId2);
     }, 5000);
-    await chromeTabsPoll.require();
-    await chromeTabsPoll.require();
-    return await chromeTabsPoll.destroyPoll();
+    await chromePoll.require();
+    await chromePoll.require();
+    return await chromePoll.destroyPoll();
   });
 
   it('#require() #release()', async () => {
@@ -54,6 +54,7 @@ describe('#ChromePool', function () {
     assert.equal(chromePoll.tabs[client.tabId].free, false, 'after require tab should be busy');
     await chromePoll.release(client.tabId);
     assert.equal(chromePoll.tabs[client.tabId].free, true, 'after release tab should be free');
+    return await chromePoll.destroyPoll();
   });
 
 });

@@ -1,6 +1,6 @@
 'use strict';
 const net = require('net');
-const { launch } = require('lighthouse/chrome-launcher');
+const { launch } = require('chrome-launcher');
 const chrome = require('chrome-remote-interface');
 
 /**
