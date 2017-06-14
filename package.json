@@ -8,6 +8,10 @@
     "connect",
     "pool"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:gwuhaolin/chrome-pool.git"
+  },
   "main": "index.js",
   "scripts": {
     "test": "mocha"
