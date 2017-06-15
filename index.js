@@ -4,27 +4,6 @@ const { launch } = require('chrome-launcher');
 const chrome = require('chrome-remote-interface');
 
 /**
- * get next free port in system
- * @returns {Promise}
- */
-function sysFreePort() {
-  return new Promise((resolve, reject) => {
-    let server = net.createServer();
-    server.listen(0, function () {
-      const port = server.address().port;
-      server.once('close', function () {
-        resolve(port);
-      });
-      server.close();
-      server = null;
-    });
-    server.on('error', function (err) {
-      reject(err);
-    });
-  });
-}
-
-/**
  * launch Chrome
  * @returns {Promise.<function>} chrome launcher
  */
@@ -83,12 +62,9 @@ class ChromePool {
    */
   static async new(options = {}) {
     let { maxTab = Infinity, port, protocols = [] } = options;
-    if (typeof port !== 'number') {
-      port = await sysFreePort();
-    }
     const chromePoll = new ChromePool();
-    chromePoll.port = port;// chrome remote debug port
     chromePoll.chromeLauncher = await launchChrome(port);
+    chromePoll.port = chromePoll.chromeLauncher.port;// chrome remote debug port
     chromePoll.protocols = protocols;
     chromePoll.tabs = {};// all tabs manage by this poll
     chromePoll.maxTab = maxTab;
@@ -103,7 +79,7 @@ class ChromePool {
 
     // Request the list of the available open targets/tabs of the remote instance.
     // @see https://github.com/cyrus-and/chrome-remote-interface/#cdplistoptions-callback
-    const tabs = await chrome.List({ port, });
+    const tabs = await chrome.List({ port: chromePoll.port });
 
     for (let i = 0; i < tabs.length; i++) {
       const tab = tabs[i];
