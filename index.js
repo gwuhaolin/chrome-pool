@@ -1,6 +1,6 @@
 'use strict';
 const net = require('net');
-const { launch } = require('chrome-launcher');
+const Runner = require('chrome-runner');
 const chrome = require('chrome-remote-interface');
 
 /**
@@ -8,7 +8,7 @@ const chrome = require('chrome-remote-interface');
  * @returns {Promise.<function>} chrome launcher
  */
 async function launchChrome(port) {
-  return await launch({
+  const runner = new Runner({
     port: port,
     chromeFlags: [
       '--headless',
@@ -17,6 +17,7 @@ async function launchChrome(port) {
       '--disable-speech-api',
     ]
   });
+  return await runner.launch();
 }
 
 // https://chromedevtools.github.io/devtools-protocol/
@@ -63,8 +64,8 @@ class ChromePool {
   static async new(options = {}) {
     let { maxTab = Infinity, port, protocols = [] } = options;
     const chromePoll = new ChromePool();
-    chromePoll.chromeLauncher = await launchChrome(port);
-    chromePoll.port = chromePoll.chromeLauncher.port;// chrome remote debug port
+    chromePoll.chromeRunner = await launchChrome(port);
+    chromePoll.port = chromePoll.chromeRunner.port;// chrome remote debug port
     chromePoll.protocols = protocols;
     chromePoll.tabs = {};// all tabs manage by this poll
     chromePoll.maxTab = maxTab;
@@ -217,9 +218,9 @@ class ChromePool {
    * @return {Promise.<void>}
    */
   async destroyPoll() {
-    await this.chromeLauncher.kill();
+    await this.chromeRunner.kill();
     delete this.tabs;
-    delete this.chromeLauncher;
+    delete this.chromeRunner;
     delete this.port;
     delete this.requireResolveTasks;
   }
