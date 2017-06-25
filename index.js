@@ -219,6 +219,8 @@ class ChromePool {
    */
   async destroyPoll() {
     await this.chromeRunner.kill();
+    clearTimeout(this.cleanTimer);
+    delete this.cleanTimer;
     delete this.tabs;
     delete this.chromeRunner;
     delete this.port;
