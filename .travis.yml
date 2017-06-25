@@ -1,0 +1,7 @@
+dist: trusty
+sudo: false
+language: node_js
+node_js:
+  - "7"
+addons:
+  chrome: stable

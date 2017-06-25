@@ -1,6 +1,8 @@
-[![Npm Package](https://img.shields.io/npm/v/chrome-pool.svg?style=flat-square)](https://www.npmjs.com/package/chrome-pool)
+[![Build Status](https://travis-ci.org/gwuhaolin/chrome-pool.svg?branch=master)](https://travis-ci.org/gwuhaolin/chrome-pool)
 [![Npm Downloads](http://img.shields.io/npm/dm/chrome-pool.svg?style=flat-square)](https://www.npmjs.com/package/chrome-pool)
 [![Dependency Status](https://david-dm.org/gwuhaolin/chrome-pool.svg?style=flat-square)](https://npmjs.org/package/chrome-pool)
+
+[![NPM](https://nodei.co/npm/chrome-pool.png)](https://nodei.co/npm/chrome-pool/)
 
 # chrome-pool
 Headless chrome tabs manage pool, concept come from database connection pool for reuse chrome tab improve performance.
