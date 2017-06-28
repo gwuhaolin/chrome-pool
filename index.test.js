@@ -5,6 +5,7 @@ const assert = require('assert');
 // process.on('unhandledRejection', r => console.log(r));
 
 describe('#ChromePool', function () {
+  this.timeout(5000);
 
   it('#new() #destroyPoll()', async () => {
     const chromePoll = await ChromePool.new();
