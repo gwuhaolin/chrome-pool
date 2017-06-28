@@ -59,11 +59,15 @@ chromeTabsPoll.release(tabId);
 ```
 `release` will all resource used by this tab include removeAllListeners.
 
-see [test](./index.test.js) for more use case.
+
 
 6. show chrome
 In dev time, you may want to know what chrome are doing rather than let chrome run in headless.
 You can set env `SHOW_CHROME=true` when run your nodejs app to disable headless to debug chrome.
+
+
+see [test](./index.test.js) for more use case.
+
 
 ## Dependencies
 1. [Chrome 59+](https://www.google.com/chrome/browser/desktop/index.html) should install on you system
