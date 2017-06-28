@@ -57,6 +57,7 @@ protocol detail use see [chrome-devtools-protocol doc](https://chromedevtools.gi
 ```js
 chromeTabsPoll.release(tabId);
 ```
+`release` will all resource used by this tab include removeAllListeners.
 
 see [test](./index.test.js) for more use case.
 

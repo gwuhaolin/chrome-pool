@@ -2,6 +2,7 @@
 const net = require('net');
 const Runner = require('chrome-runner');
 const chrome = require('chrome-remote-interface');
+const ProtocolDomains = require('chrome-remote-interface/lib/protocol.json').domains;
 
 /**
  * launch Chrome
@@ -20,29 +21,16 @@ async function launchChrome(port) {
   return await runner.launch();
 }
 
-// https://chromedevtools.github.io/devtools-protocol/
-const ShouldEnableBeforeUseProtocolNames = {
-  'Animation': true,
-  'ApplicationCache': true,
-  'CSS': true,
-  'CacheStorage': true,
-  'Console': true,
-  'DOM': true,
-  'DOMStorage': true,
-  'Database': true,
-  'Debugger': true,
-  'HeapProfiler': true,
-  'IndexedDB': true,
-  'Inspector': true,
-  'LayerTree': true,
-  'Log': true,
-  'Network': true,
-  'Overlay': true,
-  'Page': true,
-  'Profiler': true,
-  'Security': true,
-  'ServiceWorker': true,
-}
+const DomainData = {};
+ProtocolDomains.forEach((domain) => {
+  const { domain: name, events: domainEvents = [], commands: domainCommands = [] } = domain;
+  const hasEnableCommand = domainCommands.findIndex(({ name }) => name === 'enable') >= 0;
+  const events = domainEvents.map(({ name }) => name);
+  DomainData[name] = {
+    hasEnableCommand,
+    events,
+  }
+});
 
 /**
  * ChromePool used to manage chrome tabs, for reuse tab
@@ -73,7 +61,7 @@ class ChromePool {
 
     chromePoll.shouldEnabledProtocol = new Set(['Page']);
     chromePoll.protocols.forEach(name => {
-      if (ShouldEnableBeforeUseProtocolNames[name]) {
+      if (DomainData[name].hasEnableCommand) {
         chromePoll.shouldEnabledProtocol.add(name);
       }
     });
@@ -172,10 +160,20 @@ class ChromePool {
    */
   release(tabId) {
     let tab = this.tabs[tabId];
+    tab.free = true;
+
     // navigate this tab to blank to release this tab's resource
     // https://chromedevtools.github.io/devtools-protocol/tot/Page/#method-navigate
-    tab.free = true;
     tab.protocol.Page.navigate({ url: 'about:blank' });
+
+    // remove all listeners to fix MaxListenersExceededWarning: Possible EventEmitter memory leak detected
+    this.protocols.forEach((domainName) => {
+      const { events } = DomainData[domainName];
+      events.forEach((eventName) => {
+        tab.protocol.removeAllListeners(`${domainName}.${eventName}`);
+      });
+    })
+
     if (this.requireResolveTasks.length > 0) {
       const resolve = this.requireResolveTasks.shift();
       resolve(tabId);
