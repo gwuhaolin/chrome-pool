@@ -2,7 +2,7 @@
 const ChromePool = require('./index');
 const assert = require('assert');
 
-// process.on('unhandledRejection', r => console.log(r));
+process.on('unhandledRejection', console.trace);
 
 describe('#ChromePool', function () {
   this.timeout(5000);

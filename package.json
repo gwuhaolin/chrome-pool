@@ -1,6 +1,6 @@
 {
   "name": "chrome-pool",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "headless chrome tabs manage pool",
   "keywords": [
     "chrome",

@@ -9,14 +9,17 @@ const ProtocolDomains = require('chrome-remote-interface/lib/protocol.json').dom
  * @returns {Promise.<function>} chrome launcher
  */
 async function launchChrome(port) {
+  const chromeFlags = [
+    '--disable-gpu',
+    '--disable-extensions',
+    '--disable-speech-api',
+  ];
+  if (!process.env.SHOW_CHROME) {
+    chromeFlags.push('--headless')
+  }
   const runner = new Runner({
     port: port,
-    chromeFlags: [
-      '--headless',
-      '--disable-gpu',
-      '--disable-extensions',
-      '--disable-speech-api',
-    ]
+    chromeFlags,
   });
   return await runner.launch();
 }
