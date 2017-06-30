@@ -8,10 +8,10 @@
 Headless chrome tabs manage pool, concept come from database connection pool for reuse chrome tab improve performance.
 
 ## Use
-1. install from npm by `npm i chrome-pool`
+#### 1. install from npm by `npm i chrome-pool`
 
 
-2. start ChromePool:
+#### 2. start ChromePool:
   ```js
   const ChromePool = require('chrome-pool');
   
@@ -29,7 +29,7 @@ Headless chrome tabs manage pool, concept come from database connection pool for
   `await chromePoll.destroyPoll()` can release all resource used by this pool, kill chrome.
 
 
-3. require a tab to use:
+#### 3. require a tab to use:
 ```js
 // require a free tab from pool to use
 const { tabId,protocol } = await chromeTabsPoll.require();
@@ -41,21 +41,21 @@ const { Page,Target,Network,...} = protocol;
   - `protocol`: chrome remote control protocol. 
 
     
-4. use protocol to control tab:
+#### 4. use protocol to control tab:
 ```js
 const { Page,Target,Network,...} = protocol;
 ```    
 protocol detail use see [chrome-devtools-protocol doc](https://chromedevtools.github.io/devtools-protocol/).
 all protocol required be enable before use has been enable by chrome-pool.
  
-5. after use a tab release it to pool:
+#### 5. after use a tab release it to pool:
 ```js
 chromeTabsPoll.release(tabId);
 ```
 `release` will all resource used by this tab include removeAllListeners, so you don't need to removeListener by yourself.
 
 
-6. show chrome
+#### 6. show chrome
 In dev time, you may want to know what chrome are doing rather than let chrome run in headless.
 You can set env `SHOW_CHROME=true` when run your nodejs app to disable headless to debug chrome.
 
