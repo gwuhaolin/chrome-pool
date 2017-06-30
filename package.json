@@ -1,6 +1,6 @@
 {
   "name": "chrome-pool",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "headless chrome tabs manage pool",
   "keywords": [
     "chrome",
@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "chrome-remote-interface": "^0.23.2",
-    "chrome-runner": "^1.1.0"
+    "chrome-runner": "^1.1.1"
   },
   "devDependencies": {
     "mocha": "^3.4.2"
