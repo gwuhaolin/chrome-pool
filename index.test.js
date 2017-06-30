@@ -71,4 +71,12 @@ describe('#ChromePool', function () {
     return await chromePoll.destroyPoll();
   });
 
+  it('set port then get port', async () => {
+    const chromePoll = await ChromePool.new({
+      port: 5657
+    });
+    assert.equal(chromePoll.port, 5657);
+    return await chromePoll.destroyPoll();
+  });
+
 });

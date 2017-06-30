@@ -7,12 +7,16 @@ const ProtocolDomains = require('chrome-remote-interface/lib/protocol.json').dom
 /**
  * launch Chrome
  */
-async function launchChrome() {
+async function launchChrome(port) {
   let runner;
   if (process.env.SHOW_CHROME) {
-    runner = await launchWithoutNoise();
+    runner = await launchWithoutNoise({
+      port,
+    });
   } else {
-    runner = await launchWithHeadless();
+    runner = await launchWithHeadless({
+      port,
+    });
   }
   return runner;
 }
@@ -40,14 +44,15 @@ class ChromePool {
    * @param {object} options
    * {
    *  maxTab: {number} max tab to render pages, default is no limit.
+   *  port: {number} chrome debug port, default is random a free port.
    *  protocols: {array} require chrome devtool protocol to enable.
    * }
    * @returns {Promise.<*>}
    */
   static async new(options = {}) {
-    let { maxTab = Infinity, protocols = [] } = options;
+    let { maxTab = Infinity, port, protocols = [] } = options;
     const chromePoll = new ChromePool();
-    chromePoll.chromeRunner = await launchChrome();
+    chromePoll.chromeRunner = await launchChrome(port);
     chromePoll.port = chromePoll.chromeRunner.port;// chrome remote debug port
     chromePoll.protocols = protocols;
     chromePoll.tabs = {};// all tabs manage by this poll
