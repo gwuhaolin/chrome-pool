@@ -11,7 +11,6 @@ Headless chrome tabs manage pool, concept come from database connection pool for
 1. install from npm by `npm i chrome-pool`
 
 
-
 2. start ChromePool:
   ```js
   const ChromePool = require('chrome-pool');
@@ -24,14 +23,12 @@ Headless chrome tabs manage pool, concept come from database connection pool for
    
   static method new() support options:
   - `maxTab`: {number} max tab to render pages, default is no limit.
-  - `port`: {number} chrome debug port, default is random a free port.
   - `protocols`: {array} require chrome devtool protocol to be enable before use. e.g `['Network','Log']`.
   
   
   `await chromePoll.destroyPoll()` can release all resource used by this pool, kill chrome.
 
 
-    
 3. require a tab to use:
 ```js
 // require a free tab from pool to use
@@ -43,22 +40,19 @@ const { Page,Target,Network,...} = protocol;
   - `tabId`: chrome tab id.
   - `protocol`: chrome remote control protocol. 
 
-
     
 4. use protocol to control tab:
 ```js
 const { Page,Target,Network,...} = protocol;
 ```    
 protocol detail use see [chrome-devtools-protocol doc](https://chromedevtools.github.io/devtools-protocol/).
-
-
+all protocol required be enable before use has been enable by chrome-pool.
  
 5. after use a tab release it to pool:
 ```js
 chromeTabsPoll.release(tabId);
 ```
-`release` will all resource used by this tab include removeAllListeners.
-
+`release` will all resource used by this tab include removeAllListeners, so you don't need to removeListener by yourself.
 
 
 6. show chrome
@@ -68,12 +62,10 @@ You can set env `SHOW_CHROME=true` when run your nodejs app to disable headless 
 
 see [test](./index.test.js) for more use case.
 
-
-## Dependencies
-1. [Chrome 59+](https://www.google.com/chrome/browser/desktop/index.html) should install on you system
-2. Nodejs 7+
+#### Notice [chrome 59+](https://www.google.com/chrome/browser/desktop/index.html) must install on you system
 
 ## Friends
 - [chrome-render](https://github.com/gwuhaolin/chrome-render) general server render base on chrome.
+- [chrome-runner](https://github.com/gwuhaolin/chrome-runner) launch chrome by code.
 - [koa-chrome-render](https://github.com/gwuhaolin/koa-chrome-render) chrome-render middleware for koa
 - [koa-seo](https://github.com/gwuhaolin/koa-seo) koa SEO middleware
