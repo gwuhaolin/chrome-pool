@@ -1,5 +1,5 @@
 'use strict';
-const ChromePool = require('./index');
+const ChromePool = require('../index');
 const assert = require('assert');
 
 process.on('unhandledRejection', console.trace);

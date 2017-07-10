@@ -15,7 +15,7 @@ Headless chrome tabs manage pool, concept come from database connection pool for
   ```js
   const ChromePool = require('chrome-pool');
   
-  const chromePoll = await ChromePool.new();
+  const chromePoll = await ChromePool.new(options);
   await chromePoll.destroyPoll();
   ```
   
@@ -24,6 +24,7 @@ Headless chrome tabs manage pool, concept come from database connection pool for
   static method new() support options:
   - `maxTab`: {number} max tab to render pages, default is no limit.
   - `port`: {number} chrome debug port, default is random a free port.
+  - `chromeRunnerOptions`: {object} options from [chrome-runner](https://github.com/gwuhaolin/chrome-runner#options) and will pass to chrome-runner when launch chrome
   - `protocols`: {array} require chrome devtool protocol to be enable before use. e.g `['Network','Log']`.
   
   
@@ -61,7 +62,7 @@ In dev time, you may want to know what chrome are doing rather than let chrome r
 You can set env `SHOW_CHROME=true` when run your nodejs app to disable headless to debug chrome.
 
 
-see [test](./index.test.js) for more use case.
+see [test](test/index.test.js) for more use case.
 
 #### Notice [chrome 59+](https://www.google.com/chrome/browser/desktop/index.html) must install on you system
 
