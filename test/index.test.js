@@ -42,11 +42,9 @@ describe('#ChromePool', function () {
     const { tabId: tabId4 } = await chromePoll.require();
     assert.equal(Object.keys(chromePoll.tabs).length, maxTab, `open tabs should be equal to ${maxTab}`);
     console.log(`${maxTab} tabs has created, next require will return util a tab has be released after 2s`);
-    setTimeout(() => {
-      chromePoll.release(tabId1);
-      chromePoll.release(tabId2);
-      chromePoll.release(tabId3);
-      chromePoll.release(tabId4);
+    setTimeout(async () => {
+      let task = [chromePoll.release(tabId1), chromePoll.release(tabId2), chromePoll.release(tabId3), chromePoll.release(tabId4)];
+      await Promise.all(task);
       Object.keys(chromePoll.tabs).forEach(tabId => {
         assert.equal(chromePoll.tabs[tabId].free, true, 'all tabs should be free now');
       });
@@ -66,7 +64,7 @@ describe('#ChromePool', function () {
     const chromePoll = await ChromePool.new();
     const client = await chromePoll.require();
     assert.equal(chromePoll.tabs[client.tabId].free, false, 'after require tab should be busy');
-    chromePoll.release(client.tabId);
+    await chromePoll.release(client.tabId);
     assert.equal(chromePoll.tabs[client.tabId].free, true, 'after release tab should be free');
     return await chromePoll.destroyPoll();
   });
