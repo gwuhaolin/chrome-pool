@@ -172,7 +172,7 @@ class ChromePool {
       events.forEach((eventName) => {
         tab.protocol.removeAllListeners(`${domainName}.${eventName}`);
       });
-    });
+    })
 
     if (this.requireResolveTasks.length > 0) {
       const resolve = this.requireResolveTasks.shift();
