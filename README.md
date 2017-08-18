@@ -52,9 +52,10 @@ all protocol required be enable before use has been enable by chrome-pool.
  
 #### 5. after use a tab release it to pool:
 ```js
-chromeTabsPoll.release(tabId);
+await chromeTabsPoll.release(tabId);
 ```
-`release` will all resource used by this tab include removeAllListeners, so you don't need to removeListener by yourself.
+`release` will release all resource used by this tab include removeAllListeners, so you don't need to removeListener by yourself.
+By default `release` will navigate tab to `about:blank` to reduce chrome resource use, you can close this feature by call `chromeTabsPoll.release(tabId,false)`
 
 
 #### 6. show chrome
