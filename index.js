@@ -157,13 +157,16 @@ class ChromePool {
   /**
    * call on a tab when your job on this tab is finished
    * @param {string} tabId
+   * @param {boolean} clear - navigate to about:blank after release
    */
-  async release(tabId) {
+  async release(tabId, clear = true) {
     let tab = this.tabs[tabId];
 
     // navigate this tab to blank to release this tab's resource
     // https://chromedevtools.github.io/devtools-protocol/tot/Page/#method-navigate
-    await tab.protocol.Page.navigate({ url: 'about:blank' });
+    if (clear) {
+      await tab.protocol.Page.navigate({url: 'about:blank'});
+    }
     tab.free = true;
 
     // remove all listeners to fix MaxListenersExceededWarning: Possible EventEmitter memory leak detected
