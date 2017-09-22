@@ -52,7 +52,7 @@ class ChromePool {
   static async new(options = {}) {
     let { maxTab = Infinity, port, protocols = [], chromeRunnerOptions } = options;
     const chromePoll = new ChromePool();
-    chromePoll.chromeRunner = await launchChrome(Object.assign({}, chromeRunnerOptions, { port }));
+    chromePoll.chromeRunner = await launchChrome(Object.assign({},{ port },chromeRunnerOptions));
     chromePoll.port = chromePoll.chromeRunner.port;// chrome remote debug port
     chromePoll.protocols = protocols;
     chromePoll.tabs = {};// all tabs manage by this poll
