@@ -7,6 +7,10 @@
 # chrome-pool
 Headless chrome tabs manage pool, concept come from database connection pool for reuse chrome tab improve performance.
 
+<a target='_blank' rel='nofollow' href='https://app.codesponsor.io/link/3bvxELAxnq8r4wheFyRkED8U/gwuhaolin/chrome-pool'>
+  <img alt='Sponsor' width='888' height='68' src='https://app.codesponsor.io/embed/3bvxELAxnq8r4wheFyRkED8U/gwuhaolin/chrome-pool.svg' />
+</a>
+
 ## Use
 #### 1. install from npm by `npm i chrome-pool`
 
