@@ -34,11 +34,11 @@ Headless chrome tabs manage pool, concept come from database connection pool for
 #### 3. require a tab to use:
 ```js
 // require a free tab from pool to use
-const { tabId,protocol } = await chromeTabsPoll.require();
+const { tabId,protocol } = await chromePoll.require();
 // tabId
 const { Page,Target,Network,...} = protocol;
 ```    
-  `await chromeTabsPoll.require()` will return a object with prop:
+  `await chromePoll.require()` will return a object with prop:
   - `tabId`: chrome tab id.
   - `protocol`: chrome remote control protocol. 
 
@@ -52,10 +52,10 @@ all protocol required be enable before use has been enable by chrome-pool.
  
 #### 5. after use a tab release it to pool:
 ```js
-await chromeTabsPoll.release(tabId);
+await chromePoll.release(tabId);
 ```
 `release` will release all resource used by this tab include removeAllListeners, so you don't need to removeListener by yourself.
-By default `release` will navigate tab to `about:blank` to reduce chrome resource use, you can close this feature by call `chromeTabsPoll.release(tabId,false)`
+By default `release` will navigate tab to `about:blank` to reduce chrome resource use, you can close this feature by call `chromePoll.release(tabId,false)`
 
 
 #### 6. show chrome
